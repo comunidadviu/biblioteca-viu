@@ -158,7 +158,7 @@
       <button class="btn-main" id="btn-step1" onclick="handleStep1()">Enviar código de verificación →</button>
       <div class="login-error" id="error-step1"></div>
       <div class="login-loading" id="loading-step1"><span class="spinner"></span> Verificando y enviando código...</div>
-      <div class="login-note">Solo accesible con email @student.universidadviu.com autorizado</div>
+      <div class="login-note">Acceso solo para miembros autorizados por la administradora</div>
     </div>
 
     <!-- Paso 2: código -->
@@ -279,7 +279,7 @@ async function handleStep1() {
 
   errEl.style.display = 'none';
   if (!nombre || !apellidos || !email) { showError('error-step1','Completa todos los campos.'); return; }
-  if (!email.endsWith('@student.universidadviu.com')) { showError('error-step1','El email debe ser @student.universidadviu.com'); return; }
+  if (!email.includes('@')) { showError('error-step1','El email debe estar autorizado previamente por el administrador'); return; }
 
   btn.disabled = true;
   loadEl.style.display = 'block';
