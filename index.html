@@ -366,7 +366,7 @@ function slugify(s) {
 async function checkAccessInSheet(email) {
   const sheetUrl = localStorage.getItem(KEY.sheetUrl) || SHEET_URL_DEFAULT;
   // Usamos un proxy CORS para leer el CSV
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(sheetUrl)}`;
 
   const res = await fetch(proxyUrl);
   if (!res.ok) throw new Error('No se pudo leer la hoja de accesos');
