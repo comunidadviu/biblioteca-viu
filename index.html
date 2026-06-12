@@ -375,22 +375,14 @@ async function checkAccessInSheet(email) {
   return data.activo;
 }
 
-  const res = await fetch(proxyUrl);
-  if (!res.ok) throw new Error('No se pudo leer la hoja de accesos');
-  const csv = await res.text();
-
-  const lines = csv.split('\n').slice(1); // Saltar cabecera
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    const cols = parseCSVLine(line);
-    const rowEmail  = (cols[2] || '').trim().toLowerCase();
-    const rowActivo = (cols[3] || '').trim().toUpperCase();
-    if (rowEmail === email) {
-      // TRUE o checkbox marcado en Sheets exporta como TRUE
-      return rowActivo === 'TRUE' || rowActivo === '1' || rowActivo === 'VERDADERO';
-    }
-  }
-  return null; // No encontrada
+// ── GOOGLE SHEETS ──────────────────────────────────────────────
+async function checkAccessInSheet(email) {
+  const workerUrl = 'https://biblioteca-viu.comunidadviu.workers.dev';
+  const res = await fetch(`${workerUrl}/check?email=${encodeURIComponent(email)}`);
+  if (!res.ok) throw new Error('Error al conectar con el servidor');
+  const data = await res.json();
+  if (!data.found) return null;
+  return data.activo;
 }
 
 function parseCSVLine(line) {
