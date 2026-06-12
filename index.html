@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca VIU · RRHH</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+  :root {
+    --bg:      #0f1117;
+    --surface: #181c27;
+    --card:    #1e2335;
+    --border:  #2a3050;
+    --accent:  #6c8cff;
+    --accent2: #a78bfa;
+    --success: #34d399;
+    --danger:  #f87171;
+    --warning: #fbbf24;
+    --tg:      #229ED9;
+    --text:    #e8eaf6;
+    --muted:   #8892b0;
+    --radius:  12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at 60% 20%, #1a1f3a 0%, #0f1117 60%);
+  }
+
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+
+  .login-logo { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .login-logo span { color: var(--accent); }
+  .login-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .field input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--text); font-size: 15px; font-family: 'Inter', sans-serif; transition: border-color 0.2s; outline: none; }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn-login { width: 100%; margin-top: 8px; padding: 14px; background: var(--accent); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: opacity 0.2s; }
+  .btn-login:hover { opacity: 0.9; }
+  .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .login-error { margin-top: 14px; padding: 12px 16px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: var(--radius-sm); color: var(--danger); font-size: 14px; display: none; }
+  .login-note { margin-top: 20px; font-size: 12px; color: var(--muted); text-align: center; }
+
+  .login-loading { margin-top: 16px; text-align: center; color: var(--muted); font-size: 14px; display: none; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── APP ── */
+  #app { display: none; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+  .header-logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  .header-logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .user-badge { font-size: 13px; color: var(--muted); background: var(--card); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; }
+  .btn-admin { font-size: 13px; color: var(--muted); background: none; border: 1px solid var(--border); cursor: pointer; padding: 6px 14px; border-radius: var(--radius-sm); font-family: 'Inter', sans-serif; transition: border-color 0.2s, color 0.2s; }
+  .btn-admin:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-logout { font-size: 13px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 6px 10px; border-radius: var(--radius-sm); font-family: 'Inter', sans-serif; transition: color 0.2s; }
+  .btn-logout:hover { color: var(--danger); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  .banner { background: linear-gradient(135deg, #1a1f3a 0%, #1e2335 100%); border: 1px solid var(--border); border-radius: 16px; padding: 32px 36px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .banner h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .banner p { color: var(--muted); font-size: 14px; }
+  .stats { display: flex; gap: 24px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--muted); }
+
+  .toolbar { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 220px; position: relative; }
+  .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  #search-input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 16px 11px 42px; color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  #search-input:focus { border-color: var(--accent); }
+  #search-input::placeholder { color: var(--muted); }
+
+  .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .group-section { margin-bottom: 36px; }
+  .group-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; cursor: pointer; user-select: none; }
+  .group-pill { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 20px; }
+  .pill-curso { background: rgba(108,140,255,0.15); color: var(--accent); border: 1px solid rgba(108,140,255,0.25); }
+  .pill-mencion { background: rgba(167,139,250,0.15); color: var(--accent2); border: 1px solid rgba(167,139,250,0.25); }
+  .group-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; flex: 1; }
+  .group-count { font-size: 13px; color: var(--muted); }
+  .chevron { color: var(--muted); transition: transform 0.25s; }
+  .group-section.collapsed .chevron { transform: rotate(-90deg); }
+  .group-section.collapsed .subjects-grid { display: none; }
+
+  .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .subject-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s, transform 0.15s; }
+  .subject-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .subject-card.hidden { display: none; }
+  .subject-card-name { font-size: 14px; font-weight: 500; line-height: 1.4; flex: 1; }
+  .subject-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .subject-status { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .status-disponible { background: rgba(52,211,153,0.15); color: var(--success); border: 1px solid rgba(52,211,153,0.25); }
+  .status-pendiente { background: rgba(136,136,136,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .btn-tg { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--tg); color: #fff; font-size: 12px; font-weight: 600; border-radius: 6px; text-decoration: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.2s; white-space: nowrap; }
+  .btn-tg:hover { opacity: 0.85; }
+  .btn-tg.disabled { background: var(--border); color: var(--muted); cursor: not-allowed; opacity: 1; pointer-events: none; }
+
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .notice { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); border-radius: var(--radius); padding: 14px 20px; margin-bottom: 24px; font-size: 13px; color: var(--warning); display: none; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200; align-items: flex-start; justify-content: center; padding: 40px 24px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; width: 100%; max-width: 640px; }
+  .modal h2 { font-family: 'Syne', sans-serif; font-size: 20px; margin-bottom: 6px; }
+  .modal > p { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .modal-section { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .modal-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+  .modal-section h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 16px; }
+
+  .cfg-label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; margin-top: 14px; }
+  .cfg-input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  .cfg-input:focus { border-color: var(--accent); }
+
+  /* Sheet info box */
+  .sheet-info { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .sheet-info strong { color: var(--success); }
+  .sheet-url { font-size: 11px; word-break: break-all; color: var(--muted); margin-top: 4px; opacity: 0.7; }
+
+  /* Links asignaturas */
+  .subject-links-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 4px; }
+  .subject-link-row { display: grid; grid-template-columns: 1fr 220px; gap: 8px; align-items: center; }
+  .subject-link-name { font-size: 13px; color: var(--text); padding: 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .subject-link-input { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--text); font-size: 12px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
+  .subject-link-input:focus { border-color: var(--tg); }
+  .subject-link-input.filled { border-color: rgba(52,211,153,0.5); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+  .btn-secondary { padding: 10px 20px; background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+  .btn-primary { padding: 10px 22px; background: var(--accent); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .btn-primary:hover { opacity: 0.88; }
+
+  @media (max-width: 600px) {
+    header { padding: 0 16px; }
+    main { padding: 24px 16px; }
+    .login-box { padding: 32px 20px; }
+    .banner { padding: 24px; }
+    .banner h1 { font-size: 20px; }
+    .subjects-grid { grid-template-columns: 1fr; }
+    .user-badge { display: none; }
+    .subject-link-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Biblioteca <span>VIU</span></div>
+    <div class="login-subtitle">Grado en Recursos Humanos y Relaciones Laborales · Comunidad de estudiantes</div>
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="inp-nombre" placeholder="Tu nombre" autocomplete="given-name">
+    </div>
+    <div class="field">
+      <label>Apellidos</label>
+      <input type="text" id="inp-apellidos" placeholder="Tus apellidos" autocomplete="family-name">
+    </div>
+    <div class="field">
+      <label>Email universitario</label>
+      <input type="email" id="inp-email" placeholder="nombre@student.universidadviu.com" autocomplete="email">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="handleLogin()">Acceder al repositorio →</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-loading" id="login-loading">
+      <span class="spinner"></span> Verificando acceso...
+    </div>
+    <div class="login-note">Solo accesible con email @student.universidadviu.com autorizado</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="header-logo">Biblioteca <span>VIU</span></div>
+    <div class="header-right">
+      <span class="user-badge" id="user-badge"></span>
+      <button class="btn-admin" onclick="openAdmin()">⚙ Administrar</button>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="notice" id="notice-config">
+      ⚠ Algunos grupos aún no tienen link de Telegram configurado. Pulsa "Administrar" para añadirlos.
+    </div>
+
+    <div class="banner">
+      <div>
+        <h1>Repositorio de materiales</h1>
+        <p>Accede al grupo de Telegram de cada asignatura para ver apuntes, exámenes y recursos compartidos por tus compañeras.</p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">58</div>
+          <div class="stat-label">asignaturas</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-disponibles">0</div>
+          <div class="stat-label">con grupo activo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Buscar asignatura..." oninput="filterSubjects()">
+      </div>
+      <div class="filter-tabs" id="filter-tabs"></div>
+    </div>
+
+    <div id="repo-content"></div>
+  </main>
+</div>
+
+<!-- MODAL ADMIN -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal">
+    <h2>⚙ Administración</h2>
+    <p>Gestiona los accesos desde Google Sheets y los links de Telegram de cada asignatura.</p>
+
+    <div class="modal-section">
+      <h3>🔗 Google Sheets — Control de acceso</h3>
+      <div class="sheet-info">
+        <strong>✓ Google Sheet conectada</strong> — Los accesos se gestionan desde tu hoja de cálculo.<br>
+        <div class="sheet-url" id="sheet-url-display"></div>
+      </div>
+      <label class="cfg-label">URL de la Google Sheet (CSV publicado)</label>
+      <input class="cfg-input" type="url" id="cfg-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?...output=csv">
+      <div style="margin-top:10px;font-size:12px;color:var(--muted)">
+        📋 En tu Google Sheet cada fila es una alumna: <strong style="color:var(--text)">Nombre · Apellidos · Email · Activo (✓/✗)</strong><br>
+        Marca o desmarca el checkbox de la columna D para dar o quitar acceso al instante.
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h3>📱 Links de Telegram por asignatura</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Pega el link de invitación de cada grupo (t.me/+xxx). Los que no tengan link aparecerán como "Próximamente".</p>
+      <div class="subject-links-list" id="subject-links-list"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAdmin()">Cancelar</button>
+      <button class="btn-primary" onclick="saveAdmin()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATOS ──────────────────────────────────────────────────────
+const GRUPOS = [
+  { id:"c1", nombre:"1er Curso", tipo:"curso", asignaturas:[
+    "Fundamentos del Derecho","Principios de dirección de empresas",
+    "Relaciones Laborales: teorías y perspectiva histórica","TIC para la administración laboral",
+    "Fundamentos de Economía para la dirección de personas","Psicología del comportamiento humano",
+    "Constitución y relaciones con la Administración Pública","Mercado de trabajo en perspectiva económica",
+    "Estadística para la toma de decisiones","Políticas de empleo, inserción e igualdad"
+  ]},
+  { id:"c2", nombre:"2º Curso", tipo:"curso", asignaturas:[
+    "Métodos de investigación en dirección de personas","Acción protectora de la Seguridad Social",
+    "Psicología y Sociología del Trabajo","Comportamiento Organizacional",
+    "Liderazgo y gestión de equipos","Gestión de las relaciones con la Seguridad Social",
+    "Derecho del trabajo: Contratación y derechos","Atracción, incorporación y formación del talento",
+    "Estructura organizativa y diseño de puestos","Habilidades directivas"
+  ]},
+  { id:"c3", nombre:"3er Curso", tipo:"curso", asignaturas:[
+    "Derecho Fiscal","Sistemas de compensación y beneficios",
+    "Diversidad e igualdad de oportunidades","Desarrollo y gestión del talento",
+    "Dirección y gestión de personas","Relaciones sindicales y negociación colectiva",
+    "Dirección estratégica de la empresa","Gestión de conflictos y negociación"
+  ]},
+  { id:"c4", nombre:"4º Curso", tipo:"curso", asignaturas:[
+    "Prevención de riesgos laborales","Planificación estratégica de personas",
+    "Fundamentos del coaching ejecutivo","Gestión del cambio en las organizaciones",
+    "Trabajo fin de grado"
+  ]},
+  { id:"m1", nombre:"Mención I · Bienestar y Sostenibilidad", tipo:"mencion", asignaturas:[
+    "Bienestar laboral","Psicología positiva y neuromanagement",
+    "RSE, ética empresarial y sostenibilidad","Inteligencia emocional en entornos laborales",
+    "Employee experience","Organizaciones saludables","Mediación laboral"
+  ]},
+  { id:"m2", nombre:"Mención II · Digitalización", tipo:"mencion", asignaturas:[
+    "Cultura digital y transformación en las organizaciones","Gestión del talento digital",
+    "Big Data aplicado a la dirección de personas","Herramientas de People Analytics",
+    "Visualización de datos en People Analytics","Innovación y metodologías ágiles en dirección de personas",
+    "Employer branding y recruitment"
+  ]},
+  { id:"m3", nombre:"Mención III · Dirección Financiera y Marketing", tipo:"mencion", asignaturas:[
+    "Principios de contabilidad financiera","Dirección financiera de la empresa",
+    "Gestión del presupuesto y control de gestión","Principios de Marketing y Gestión de Ventas",
+    "Análisis de estados financieros","Sostenibilidad y Responsabilidad Social Corporativa",
+    "Comunicación Corporativa y Estratégica"
+  ]},
+  { id:"m4", nombre:"Mención IV · Derecho de la Empresa", tipo:"mencion", asignaturas:[
+    "Derecho Mercantil I: Estatuto jurídico del empresario y Derecho Societario",
+    "Derecho Mercantil II: Contratos, Derecho Bancario y Bursátil",
+    "Derecho Civil: Obligaciones y contratos","Derecho de la Unión Europea",
+    "Derecho Administrativo","Derecho Procesal Laboral","Asesoría y consultoría de empresas"
+  ]},
+  { id:"m5", nombre:"Mención V · Gestión y Administración Laboral", tipo:"mencion", asignaturas:[
+    "Contratación, nóminas y seguros sociales","Valoración de puestos de trabajo",
+    "Productividad y métodos de trabajo","Auditoría de Gestión de Personas",
+    "Auditoría Laboral y de la Seguridad Social","Asesoría Laboral","Gestión y Administración del Trabajo"
+  ]}
+];
+
+// URL de la Google Sheet ya configurada
+const SHEET_URL_DEFAULT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWvN7VOEzJjMJUuLmNThsEfQ536bBYZdX8I7d05Ekip28TItM8F1tj9sUXyiCU1ERJ00ilDro7owa5/pub?gid=0&single=true&output=csv";
+
+const KEY = {
+  session: 'viu_bib_session',
+  links:   'viu_bib_links',
+  sheetUrl:'viu_bib_sheet_url',
+};
+
+function slugify(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_');
+}
+
+// ── GOOGLE SHEETS ──────────────────────────────────────────────
+async function checkAccessInSheet(email) {
+  const sheetUrl = localStorage.getItem(KEY.sheetUrl) || SHEET_URL_DEFAULT;
+  // Usamos un proxy CORS para leer el CSV
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
+
+  const res = await fetch(proxyUrl);
+  if (!res.ok) throw new Error('No se pudo leer la hoja de accesos');
+  const csv = await res.text();
+
+  const lines = csv.split('\n').slice(1); // Saltar cabecera
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = parseCSVLine(line);
+    const rowEmail  = (cols[2] || '').trim().toLowerCase();
+    const rowActivo = (cols[3] || '').trim().toUpperCase();
+    if (rowEmail === email) {
+      // TRUE o checkbox marcado en Sheets exporta como TRUE
+      return rowActivo === 'TRUE' || rowActivo === '1' || rowActivo === 'VERDADERO';
+    }
+  }
+  return null; // No encontrada
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { inQuotes = !inQuotes; }
+    else if (line[i] === ',' && !inQuotes) { result.push(current); current = ''; }
+    else { current += line[i]; }
+  }
+  result.push(current);
+  return result;
+}
+
+// ── LOGIN ──────────────────────────────────────────────────────
+async function handleLogin() {
+  const nombre    = document.getElementById('inp-nombre').value.trim();
+  const apellidos = document.getElementById('inp-apellidos').value.trim();
+  const email     = document.getElementById('inp-email').value.trim().toLowerCase();
+  const errEl     = document.getElementById('login-error');
+  const loadEl    = document.getElementById('login-loading');
+  const btn       = document.getElementById('btn-login');
+
+  errEl.style.display = 'none';
+
+  if (!nombre || !apellidos || !email) { showError('Completa todos los campos.'); return; }
+  if (!email.endsWith('@student.universidadviu.com')) { showError('El email debe ser @student.universidadviu.com'); return; }
+
+  btn.disabled = true;
+  loadEl.style.display = 'block';
+
+  try {
+    const acceso = await checkAccessInSheet(email);
+
+    if (acceso === null) {
+      showError('Tu email no está en la lista de acceso. Contacta con la administradora del grupo.');
+      btn.disabled = false; loadEl.style.display = 'none'; return;
+    }
+    if (acceso === false) {
+      showError('Tu acceso está desactivado temporalmente. Contacta con la administradora.');
+      btn.disabled = false; loadEl.style.display = 'none'; return;
+    }
+
+    const session = { nombre, apellidos, email, ts: Date.now() };
+    localStorage.setItem(KEY.session, JSON.stringify(session));
+    enterApp(session);
+
+  } catch (err) {
+    showError('Error al verificar el acceso. Inténtalo de nuevo en unos segundos.');
+    btn.disabled = false; loadEl.style.display = 'none';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') handleLogin();
+});
+
+// ── APP ────────────────────────────────────────────────────────
+function enterApp(session) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-badge').textContent = `${session.nombre} ${session.apellidos}`;
+  buildFilterTabs();
+  renderAll();
+  updateStats();
+  checkPendingLinks();
+}
+
+function logout() {
+  localStorage.removeItem(KEY.session);
+  location.reload();
+}
+
+// ── LINKS ──────────────────────────────────────────────────────
+function getLinks() {
+  try { return JSON.parse(localStorage.getItem(KEY.links) || '{}'); }
+  catch { return {}; }
+}
+
+// ── FILTROS ────────────────────────────────────────────────────
+let activeFilter = 'all';
+
+function buildFilterTabs() {
+  const container = document.getElementById('filter-tabs');
+  const tabs = [
+    { id:'all', label:'Todas' },
+    { id:'curso', label:'Cursos' },
+    { id:'mencion', label:'Menciones' },
+    { id:'disponible', label:'✓ Con grupo' },
+  ];
+  container.innerHTML = tabs.map(t =>
+    `<button class="tab-btn ${t.id==='all'?'active':''}" onclick="setFilter('${t.id}',this)">${t.label}</button>`
+  ).join('');
+}
+
+function setFilter(id, btn) {
+  activeFilter = id;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterSubjects();
+}
+
+function filterSubjects() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const links = getLinks();
+  let anyVisible = false;
+
+  GRUPOS.forEach(grupo => {
+    const section = document.getElementById('sec-' + grupo.id);
+    if (!section) return;
+    let grupoVisible = false;
+
+    grupo.asignaturas.forEach((asig, i) => {
+      const card = document.getElementById('card-' + grupo.id + '-' + i);
+      if (!card) return;
+      const hasLink = !!links[slugify(asig)];
+      const matchQ = !q || asig.toLowerCase().includes(q);
+      const matchFilter =
+        activeFilter === 'all' ? true :
+        activeFilter === 'curso' ? grupo.tipo === 'curso' :
+        activeFilter === 'mencion' ? grupo.tipo === 'mencion' :
+        activeFilter === 'disponible' ? hasLink : true;
+
+      const visible = matchQ && matchFilter;
+      card.classList.toggle('hidden', !visible);
+      if (visible) { grupoVisible = true; anyVisible = true; }
+    });
+
+    section.style.display = grupoVisible ? '' : 'none';
+  });
+
+  document.getElementById('empty-msg').style.display = anyVisible ? 'none' : 'block';
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function renderAll() {
+  const links = getLinks();
+  const container = document.getElementById('repo-content');
+  let html = '';
+
+  GRUPOS.forEach(grupo => {
+    const pillClass = grupo.tipo === 'curso' ? 'pill-curso' : 'pill-mencion';
+    const pillLabel = grupo.tipo === 'curso' ? 'Curso' : 'Mención';
+
+    const cards = grupo.asignaturas.map((asig, i) => {
+      const key = slugify(asig);
+      const link = links[key];
+      const btnHtml = link
+        ? `<a class="btn-tg" href="${link}" target="_blank">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 1 0 24 12 12 12 0 0 0 11.944 0zm5.992 8.167-2.002 9.43c-.148.655-.537.815-1.09.507l-3.009-2.217-1.451 1.396c-.16.16-.295.295-.605.295l.215-3.053 5.564-5.028c.242-.215-.053-.335-.374-.12L7.03 14.85l-2.966-.926c-.645-.2-.657-.645.135-.955l11.57-4.46c.537-.194 1.007.131.835.949l-.668 3.709z"/></svg>
+             Unirse
+           </a>`
+        : `<span class="btn-tg disabled">Próximamente</span>`;
+
+      const statusHtml = link
+        ? `<span class="subject-status status-disponible">● Disponible</span>`
+        : `<span class="subject-status status-pendiente">○ Próximamente</span>`;
+
+      return `
+        <div class="subject-card" id="card-${grupo.id}-${i}">
+          <div class="subject-card-name">${asig}</div>
+          <div class="subject-card-footer">${statusHtml}${btnHtml}</div>
+        </div>`;
+    }).join('');
+
+    html += `
+      <div class="group-section" id="sec-${grupo.id}">
+        <div class="group-header" onclick="toggleGroup('sec-${grupo.id}')">
+          <span class="group-pill ${pillClass}">${pillLabel}</span>
+          <span class="group-name">${grupo.nombre}</span>
+          <span class="group-count">${grupo.asignaturas.length} asignaturas</span>
+          <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="subjects-grid">${cards}</div>
+      </div>`;
+  });
+
+  html += `<div class="empty-state" id="empty-msg" style="display:none"><div class="empty-icon">🔍</div><div>No se encontraron asignaturas.</div></div>`;
+  container.innerHTML = html;
+}
+
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+function updateStats() {
+  const links = getLinks();
+  const disponibles = GRUPOS.reduce((s,g) => s + g.asignaturas.filter(a => !!links[slugify(a)]).length, 0);
+  document.getElementById('stat-disponibles').textContent = disponibles;
+}
+
+function checkPendingLinks() {
+  const links = getLinks();
+  const total = GRUPOS.reduce((s,g) => s + g.asignaturas.length, 0);
+  const disponibles = GRUPOS.reduce((s,g) => s + g.asignaturas.filter(a => !!links[slugify(a)]).length, 0);
+  if (disponibles < total) document.getElementById('notice-config').style.display = 'block';
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────
+function openAdmin() {
+  const sheetUrl = localStorage.getItem(KEY.sheetUrl) || SHEET_URL_DEFAULT;
+  document.getElementById('cfg-sheet-url').value = sheetUrl;
+  document.getElementById('sheet-url-display').textContent = sheetUrl;
+
+  const links = getLinks();
+  const list = document.getElementById('subject-links-list');
+  list.innerHTML = GRUPOS.map(grupo => {
+    const rows = grupo.asignaturas.map(asig => {
+      const key = slugify(asig);
+      const val = links[key] || '';
+      return `
+        <div class="subject-link-row">
+          <span class="subject-link-name" title="${asig}">${asig}</span>
+          <input class="subject-link-input ${val?'filled':''}" type="url" data-key="${key}"
+                 placeholder="https://t.me/+..." value="${val}"
+                 oninput="this.classList.toggle('filled',!!this.value)">
+        </div>`;
+    }).join('');
+    return `<div style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">${grupo.nombre}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  document.getElementById('admin-modal').classList.add('open');
+}
+
+function closeAdmin() {
+  document.getElementById('admin-modal').classList.remove('open');
+}
+
+function saveAdmin() {
+  const newUrl = document.getElementById('cfg-sheet-url').value.trim();
+  if (newUrl) localStorage.setItem(KEY.sheetUrl, newUrl);
+
+  const inputs = document.querySelectorAll('.subject-link-input');
+  const links = {};
+  inputs.forEach(inp => { if (inp.value.trim()) links[inp.dataset.key] = inp.value.trim(); });
+  localStorage.setItem(KEY.links, JSON.stringify(links));
+
+  closeAdmin();
+  renderAll();
+  updateStats();
+  checkPendingLinks();
+}
+
+// ── INICIO ─────────────────────────────────────────────────────
+(function init() {
+  const raw = localStorage.getItem(KEY.session);
+  if (!raw) return;
+  try {
+    const session = JSON.parse(raw);
+    if (Date.now() - session.ts < 7 * 24 * 60 * 60 * 1000) {
+      enterApp(session);
+    } else {
+      localStorage.removeItem(KEY.session);
+    }
+  } catch { localStorage.removeItem(KEY.session); }
+})();
+</script>
+</body>
+</html>
