@@ -366,7 +366,14 @@ function slugify(s) {
 async function checkAccessInSheet(email) {
   const sheetUrl = localStorage.getItem(KEY.sheetUrl) || SHEET_URL_DEFAULT;
   // Usamos un proxy CORS para leer el CSV
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(sheetUrl)}`;
+  async function checkAccessInSheet(email) {
+  const workerUrl = 'https://biblioteca-viu.comunidadviu.workers.dev';
+  const res = await fetch(`${workerUrl}/check?email=${encodeURIComponent(email)}`);
+  if (!res.ok) throw new Error('Error al conectar con el servidor');
+  const data = await res.json();
+  if (!data.found) return null;
+  return data.activo;
+}
 
   const res = await fetch(proxyUrl);
   if (!res.ok) throw new Error('No se pudo leer la hoja de accesos');
